@@ -1,4 +1,4 @@
-package NeuralNet;
+package src.NeuralNet;
 
 public class Connector {
     private Neuron from;

@@ -1,3 +1,4 @@
+package src;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 
@@ -17,6 +18,6 @@ public class Renderer {
         image.getGraphics().setColor(Color.LIGHT_GRAY);
         image.getGraphics().drawLine((int)pivot, 0, (int)(Math.cos(angle) * length + pivot), (int)(Math.sin(angle) * length));
         image.getGraphics().drawOval((int)(Math.cos(angle) * length + pivot), (int)(Math.sin(angle) * length), 25, 25);
-        return null;
+        return image;
     }
 }

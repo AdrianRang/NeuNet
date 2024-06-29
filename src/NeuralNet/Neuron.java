@@ -1,4 +1,4 @@
-package NeuralNet;
+package src.NeuralNet;
 
 public interface Neuron {
     void addInput(double input);

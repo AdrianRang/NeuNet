@@ -1,4 +1,4 @@
-package NeuralNet;
+package src.NeuralNet;
 
 public class OutputNeuron implements Neuron{
     double output;

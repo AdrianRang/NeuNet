@@ -1,6 +1,7 @@
+package src;
 import java.util.ArrayList;
 
-import NeuralNet.*;
+import src.NeuralNet.*;
 
 public class Network {
     InputNeuron[] inputNeurons;

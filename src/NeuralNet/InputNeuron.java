@@ -1,4 +1,4 @@
-package NeuralNet;
+package src.NeuralNet;
 
 /**
  * Represents an input neuron in a neural network.
