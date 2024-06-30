@@ -30,6 +30,6 @@ Not there yet...
 I wish
 
 ## TODO:
-- Generate Neural Network
+- ~~Generate Neural Network~~
 - Render Neural Network
-- Add physics
+- Add challlenge

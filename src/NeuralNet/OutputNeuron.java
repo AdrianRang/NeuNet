@@ -2,8 +2,10 @@ package src.NeuralNet;
 
 public class OutputNeuron implements Neuron{
     double output;
+    public final String name;
 
-    public OutputNeuron() {
+    public OutputNeuron(String name) {
+        this.name = name;
         output = 0;
     }
 

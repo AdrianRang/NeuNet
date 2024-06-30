@@ -5,11 +5,13 @@ package src.NeuralNet;
  */
 public class InputNeuron implements Neuron {
     private double output;
+    public final String name;
 
     /**
      * Creates an input neuron with an initial output of 0.
      */
-    public InputNeuron() {
+    public InputNeuron(String name) {
+        this.name = name;
         output = 0;
     }
 
