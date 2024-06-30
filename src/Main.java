@@ -1,5 +1,8 @@
 package src;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import src.NeuralNet.InputNeuron;
 import src.NeuralNet.Neuron;
 import src.NeuralNet.OutputNeuron;
@@ -13,7 +16,7 @@ public class Main {
             new OutputNeuron("Output 2")
         };
 
-        Network network = new Network(new Neuron[] {input}, 1, 1, 2, outputNeurons, 1, 1);
+        Network network = new Network(new Neuron[] {input, new InputNeuron("a")}, 1, 1, 2, outputNeurons, 1, 1);
 
         double rand = Math.random();
         input.addInput(rand);
@@ -30,5 +33,13 @@ public class Main {
         System.out.println("Input: " + 0.5);
         System.out.println("Output 1: " + output[0]);
         System.out.println("Output 2: " + output[1]);
+
+        JFrame frame = new JFrame("Neural Network");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        JPanel panel = Renderer.renderNetwork(network, 800, 600, 50, 20);
+        frame.add(panel);
+        frame.setVisible(true);
+        frame.repaint();
     }
 }
