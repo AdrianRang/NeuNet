@@ -1,9 +1,15 @@
 package src;
+
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
+import src.NeuralNet.Connector;
+import src.NeuralNet.InputNeuron;
+import src.NeuralNet.OutputNeuron;
+
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 
 public class Renderer {
@@ -14,8 +20,9 @@ public class Renderer {
     public static JPanel renderNetwork(Network network, int width, int height, int padding, int neuronSize) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();
-        g.drawLine(0, (int)(height/2), width, (int)(height/2));
-        g.setColor(Color.RED);
+        // g.setColor(Color.RED);
+        // g.drawLine(0, (int)(height/2), width, (int)(height/2));
+        // g.drawLine((int)(width/2), 0, (int)(width/2), height);
         g.setColor(BACKGROUND_COLOR);
         //g.fillRect(0, 0, width, height);
         g.setColor(NEURON_COLOR);
@@ -25,26 +32,42 @@ public class Renderer {
 
         int spaceBetweenLayers = (width - 2 * padding) / (numHiddenLayers + 2);
         int spaceBetweenNeuronsIn = (height - 2 * padding) / (numNeuronsIn);
-        int[] boundingBoxIn = new int[] {neuronSize, neuronSize + numNeuronsIn * spaceBetweenNeuronsIn};
+        int[] boundingBoxIn = new int[] {neuronSize, neuronSize + (numNeuronsIn - 1) * spaceBetweenNeuronsIn};
         
-        g.drawRect(padding, padding, boundingBoxIn[0], boundingBoxIn[1]);
         for (int i = 0; i < numNeuronsIn; i++) {
-            g.fillOval(padding, padding + i * spaceBetweenNeuronsIn, neuronSize, neuronSize);
+            g.fillOval(padding, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5), neuronSize, neuronSize);
+            g.setFont(Font.getFont("Arial"));
+            network.inputNeurons[i].setPos(padding, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5));
+            InputNeuron in = (InputNeuron)(network.inputNeurons[i]);
+            g.drawString(in.name, padding + neuronSize + 5, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize);
         }
 
         for (int i = 0; i < numHiddenLayers; i++) {
             int numNeurons = network.hiddenLayers.get(i).size();
             int spaceBetweenNeurons = (height - 2 * padding) / (numNeurons + 1);
+            int[] boundingBox = new int[] {neuronSize, neuronSize + (numNeurons - 1) * spaceBetweenNeurons};
+
             for (int j = 0; j < numNeurons; j++) {
-                g.fillOval(padding + (i + 1) * spaceBetweenLayers, padding + j * spaceBetweenNeurons, neuronSize, neuronSize);
+                network.hiddenLayers.get(i).get(j).setPos(padding + i * spaceBetweenLayers + (width - 2 * padding - (spaceBetweenLayers * numHiddenLayers))/2, padding + j * spaceBetweenNeurons + (height - boundingBox[1]) / 2 - (int)(neuronSize * 2.5));
+                g.fillOval((padding + i * spaceBetweenLayers + (width - 2 * padding - (spaceBetweenLayers * numHiddenLayers))/2), padding + j * spaceBetweenNeurons + (height - boundingBox[1]) / 2 - (int)(neuronSize * 2.5), neuronSize, neuronSize);
             }
         }
 
         int spaceBetweenNeuronsOut = (height - 2 * padding) / (numNeuronsOut);
+        int[] boundingBoxOut = new int[] {neuronSize, neuronSize + (numNeuronsOut - 1) * spaceBetweenNeuronsOut};
         for (int i = 0; i < numNeuronsOut; i++) {
-            g.fillOval(width - padding - neuronSize, padding + i * spaceBetweenNeuronsOut, neuronSize, neuronSize);
+            g.fillOval(width - padding - neuronSize, padding + i * spaceBetweenNeuronsOut + (height - boundingBoxOut[1]) / 2 - (int)(neuronSize * 2.5), neuronSize, neuronSize);
+            g.setFont(Font.getFont("Arial"));
+            network.outputNeurons[i].setPos(width - padding - neuronSize, padding + i * spaceBetweenNeuronsOut + (height - boundingBoxOut[1]) / 2 - (int)(neuronSize * 2.5));
+            OutputNeuron out = (OutputNeuron)(network.outputNeurons[i]);
+            g.drawString(String.valueOf(out.getOutput()), width - padding - neuronSize - 5 - String.valueOf(out.getOutput()).length() * 5, padding + i * spaceBetweenNeuronsOut + (height - boundingBoxOut[1]) / 2 - (int)(neuronSize * 2.5) - 5);
+            g.drawString(out.name, width - padding - neuronSize - 5 - out.name.length() * 5, padding + i * spaceBetweenNeuronsOut + (height - boundingBoxOut[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize + 15);
         }
 
+        for (Connector con : network.connectors) {
+            g.setColor(CONNECTION_COLOR);
+            g.drawLine(con.getFrom().getX() + (int)(neuronSize/2), con.getFrom().getY() + (int)(neuronSize/2), con.getTo().getX() + (int)(neuronSize/2), con.getTo().getY() + (int)(neuronSize/2));
+        }
 
 
         JPanel panel = new JPanel() {

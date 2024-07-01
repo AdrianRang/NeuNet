@@ -13,6 +13,9 @@ public class HiddenNeuron implements Neuron {
     private ArrayList<Double> inputs = new ArrayList<>();
     private double bias;
 
+    private int x;
+    private int y;
+
     /**
      * Constructs a new HiddenNeuron object with a random bias value.
      */
@@ -95,6 +98,37 @@ public class HiddenNeuron implements Neuron {
             default:
                 return input;
         }
+    }
+
+    /**
+     * Sets the position of the neuron.
+     * Only used for visualization purposes.
+     *
+     * @param x The x-coordinate of the neuron.
+     * @param y The y-coordinate of the neuron.
+     */
+    public void setPos(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * Returns the x-coordinate of the neuron.
+     *
+     * @return The x-coordinate of the neuron.
+     */
+    public int getX() {
+        return x;
+    }
+
+    /**
+     * Returns the y-coordinate of the neuron.
+     *
+     * @return The y-coordinate of the neuron.
+     */
+
+    public int getY() {
+        return y;
     }
 
     /**

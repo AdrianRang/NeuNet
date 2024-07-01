@@ -16,7 +16,7 @@ public class Main {
             new OutputNeuron("Output 2")
         };
 
-        Network network = new Network(new Neuron[] {input, new InputNeuron("a")}, 1, 1, 2, outputNeurons, 1, 1);
+        Network network = new Network(new Neuron[] {input}, 1, 3, 2, outputNeurons, 1, 0.3);
 
         double rand = Math.random();
         input.addInput(rand);

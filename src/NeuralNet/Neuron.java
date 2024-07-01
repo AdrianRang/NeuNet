@@ -1,7 +1,12 @@
 package src.NeuralNet;
 
 public interface Neuron {
-    void addInput(double input);
-    double getOutput();
-    void reset();
+    public void addInput(double input);
+    public double getOutput();
+    public void reset();
+
+    // For visualization purposes
+    public void setPos(int x, int y);
+    public int getX();
+    public int getY();
 }

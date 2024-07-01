@@ -2,6 +2,9 @@ package src.NeuralNet;
 
 public class OutputNeuron implements Neuron{
     double output;
+    int x;
+    int y;
+
     public final String name;
 
     public OutputNeuron(String name) {
@@ -23,5 +26,25 @@ public class OutputNeuron implements Neuron{
 
     public void addInput(double input) {
         output = input;
+    }
+
+    /**
+     * Sets the position of the neuron.
+     * Only used for visualization purposes.
+     * 
+     * @param x the x-coordinate of the neuron
+     * @param y the y-coordinate of the neuron
+     */
+    public void setPos(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }

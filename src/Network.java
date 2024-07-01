@@ -48,8 +48,9 @@ public class Network {
             hiddenLayers = new ArrayList<>(startingHiddenLayers);
             for (int i = 0; i < startingHiddenLayers; i++) {
                 hiddenLayers.add(i, new ArrayList<Neuron>());
-                int numNeurons = (int) (Math.random() * chanceOfCreation * maxNeurons);
+                int numNeurons = maxNeurons;
                 for (int j = 0; j < numNeurons; j++) {
+                    if (Math.random() < chanceOfCreation) continue;
                     hiddenLayers.get(i).add(new HiddenNeuron());
                 }
             }
@@ -60,12 +61,13 @@ public class Network {
 
     void setRandomConnectors(double chanceOfConnection) {
         // Connect input neurons to first hidden layer
-        int connectionCount = (int)(inputNeurons.length * Math.max(1, chanceOfConnection * Math.random()));
+        int connectionCount = (int)(inputNeurons.length * Math.max(1, chanceOfConnection));
+        connectionCount *= connectionCount;
         for (int i = 0; i < connectionCount; i++) {
             int inputIndex = (int)(Math.random() * inputNeurons.length);
             int outputIndex = (int)(Math.random() * outputNeurons.length);
             try {
-                connectors.add(new Connector(inputNeurons[inputIndex], outputNeurons[outputIndex], Math.random() * 2 - 1));
+                connectors.add(new Connector(inputNeurons[inputIndex], hiddenLayers.get(0).get(outputIndex), Math.random() * 2 - 1));
             } catch (Exception e) {
                 e.printStackTrace();
             }
