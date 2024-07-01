@@ -16,7 +16,7 @@ public class Main {
             new OutputNeuron("Output 2")
         };
 
-        Network network = new Network(new Neuron[] {input}, 1, 3, 2, outputNeurons, 1, 0.3);
+        Network network = new Network(new Neuron[] {input}, 1, 3, 4, outputNeurons, 1, 0.8);
 
         double rand = Math.random();
         input.addInput(rand);
@@ -39,6 +39,7 @@ public class Main {
         frame.setSize(800, 600);
         JPanel panel = Renderer.renderNetwork(network, 800, 600, 50, 20);
         frame.add(panel);
+        frame.setBackground(Renderer.BACKGROUND_COLOR);
         frame.setVisible(true);
         frame.repaint();
     }

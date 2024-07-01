@@ -50,7 +50,7 @@ public class Network {
                 hiddenLayers.add(i, new ArrayList<Neuron>());
                 int numNeurons = maxNeurons;
                 for (int j = 0; j < numNeurons; j++) {
-                    if (Math.random() < chanceOfCreation) continue;
+                    if (Math.random() > chanceOfCreation) continue;
                     hiddenLayers.get(i).add(new HiddenNeuron());
                 }
             }
@@ -60,18 +60,25 @@ public class Network {
     }
 
     void setRandomConnectors(double chanceOfConnection) {
+        
         // Connect input neurons to first hidden layer
         int connectionCount = (int)(inputNeurons.length * Math.max(1, chanceOfConnection));
+        ArrayList<int[]> currCons = new ArrayList<int[]>();
         connectionCount *= connectionCount;
         for (int i = 0; i < connectionCount; i++) {
             int inputIndex = (int)(Math.random() * inputNeurons.length);
             int outputIndex = (int)(Math.random() * outputNeurons.length);
             try {
+                if(currCons.contains(new int[] {inputIndex, outputIndex})) continue;
                 connectors.add(new Connector(inputNeurons[inputIndex], hiddenLayers.get(0).get(outputIndex), Math.random() * 2 - 1));
+                currCons.add(new int[] {inputIndex, outputIndex});
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
+        currCons.clear();
+
 
         // Connect hidden layers
         for (int i = 0; i < hiddenLayers.size() - 1; i++) {
@@ -79,9 +86,13 @@ public class Network {
             for (int j = 0; j < connectionCount; j++) {
                 int inputIndex = (int)(Math.random() * hiddenLayers.get(i).size());
                 int outputIndex = (int)(Math.random() * hiddenLayers.get(i + 1).size());
+                if(currCons.contains(new int[] {inputIndex, outputIndex})) continue;
                 connectors.add(new Connector(hiddenLayers.get(i).get(inputIndex), hiddenLayers.get(i + 1).get(outputIndex), Math.random() * 2 - 1));
+                currCons.add(new int[] {inputIndex, outputIndex});
             }
         }
+
+        currCons.clear();
 
         // Connect last hidden layer to output neurons
         connectionCount = (int)(hiddenLayers.get(hiddenLayers.size() - 1).size() * Math.max(1, chanceOfConnection * Math.random())) + 1;
@@ -90,11 +101,15 @@ public class Network {
             int inputIndex = (int)(Math.random() * hiddenLayers.get(hiddenLayers.size() - 1).size());
             int outputIndex = (int)(Math.random() * outputNeurons.length);
             try {
+                if(currCons.contains(new int[] {inputIndex, outputIndex})) continue;
                 connectors.add(new Connector(hiddenLayers.get(hiddenLayers.size() - 1).get(inputIndex), outputNeurons[outputIndex], Math.random() * 2 - 1));
+                currCons.add(new int[] {inputIndex, outputIndex});
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
+        System.out.println(connectors.size());
     }
 
     /**
