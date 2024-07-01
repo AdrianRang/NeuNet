@@ -24,6 +24,7 @@ public class OutputNeuron implements Neuron{
         output = 0;
     }
 
+    //TODO: needs to be the same as hidden neuron
     public void addInput(double input) {
         output = input;
     }

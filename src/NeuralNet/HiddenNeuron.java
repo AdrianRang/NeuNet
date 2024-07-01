@@ -20,7 +20,7 @@ public class HiddenNeuron implements Neuron {
      * Constructs a new HiddenNeuron object with a random bias value.
      */
     public HiddenNeuron() {
-        this.bias = Math.random();
+        this.bias = Math.random() * 2 - 1;
     }
 
     /**
