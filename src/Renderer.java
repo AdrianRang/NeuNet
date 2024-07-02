@@ -62,13 +62,13 @@ public class Renderer {
                 double output = network.hiddenLayers.get(i).get(j).getOutput();
                 int re, gr, bl;
                 if (output >= 0) {
-                    re = (int) (output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed());
-                    gr = (int) (output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen());
-                    bl = (int) (output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue());
+                    re = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed()));
+                    gr = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen()));
+                    bl = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue()));
                 } else {
-                    re = (int) (Math.abs(output) * Math.abs(NEURON_COLOR.getRed() - NEG_NEURON_COLOR.getRed()) + NEG_NEURON_COLOR.getRed());
-                    gr = (int) (Math.abs(output) * Math.abs(NEURON_COLOR.getGreen() - NEG_NEURON_COLOR.getGreen()) + NEG_NEURON_COLOR.getGreen());
-                    bl = (int) (Math.abs(output) * Math.abs(NEURON_COLOR.getBlue() - NEG_NEURON_COLOR.getBlue()) + NEG_NEURON_COLOR.getBlue());
+                    re = (int) Math.min(255, Math.abs(output * (NEG_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed()));
+                    gr = (int) Math.min(255, Math.abs(output * (NEG_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen()));
+                    bl = (int) Math.min(255, Math.abs(output * (NEG_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue()));
                 }
                 g.setColor(new Color(re, gr, bl));
 
@@ -85,9 +85,16 @@ public class Renderer {
         int[] boundingBoxOut = new int[] {neuronSize, neuronSize + (numNeuronsOut - 1) * spaceBetweenNeuronsOut};
         for (int i = 0; i < numNeuronsOut; i++) {
             double output = network.outputNeurons[i].getOutput();
-            int re = (int)Math.min(255, (output * ((output > 0 ? POS_NEURON_COLOR.getRed() : NEG_NEURON_COLOR.getRed()) - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed()));
-            int gr = (int)Math.min(255, (output * ((output > 0 ? POS_NEURON_COLOR.getGreen() : NEG_NEURON_COLOR.getGreen()) - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen()));
-            int bl = (int)Math.min(255, (output * ((output > 0 ? POS_NEURON_COLOR.getBlue() : NEG_NEURON_COLOR.getBlue()) - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue()));
+            int re, gr, bl;
+            if (output >= 0) {
+                re = (int) Math.min(255, (Math.abs(output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed())));
+                gr = (int) Math.min(255, (Math.abs(output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen())));
+                bl = (int) Math.min(255, (Math.abs(output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue())));
+            } else {
+                re = (int) Math.min(255, (Math.abs(output * (NEURON_COLOR.getRed() - NEG_NEURON_COLOR.getRed()) + NEG_NEURON_COLOR.getRed())));
+                gr = (int) Math.min(255, (Math.abs(output * (NEURON_COLOR.getGreen() - NEG_NEURON_COLOR.getGreen()) + NEG_NEURON_COLOR.getGreen())));
+                bl = (int) Math.min(255, (Math.abs(output * (NEURON_COLOR.getBlue() - NEG_NEURON_COLOR.getBlue()) + NEG_NEURON_COLOR.getBlue())));
+            }
             g.setColor(new Color(re, gr, bl));
 
             g.fillOval(width - padding - neuronSize, padding + i * spaceBetweenNeuronsOut + (height - boundingBoxOut[1]) / 2 - (int)(neuronSize * 2.5), neuronSize, neuronSize);

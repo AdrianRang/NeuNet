@@ -1,9 +1,12 @@
 package src.NeuralNet;
 
+import java.util.ArrayList;
+
 public class OutputNeuron implements Neuron{
     double output;
     int x;
     int y;
+    ArrayList<Double> inputs = new ArrayList<Double>();
 
     public final String name;
 
@@ -13,6 +16,11 @@ public class OutputNeuron implements Neuron{
     }
 
     public double getOutput() {
+        double sum = 0;
+        for (double input : inputs) {
+            sum += input;
+        }
+        output = sum;
         return output;
     }
 
@@ -24,9 +32,8 @@ public class OutputNeuron implements Neuron{
         output = 0;
     }
 
-    //TODO: needs to be the same as hidden neuron
     public void addInput(double input) {
-        output = input;
+        this.inputs.add(input);
     }
 
     /**
