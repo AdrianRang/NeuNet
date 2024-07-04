@@ -143,17 +143,25 @@ public class Renderer {
         return panel;
     }
 
-    public static BufferedImage renderGame(double pivot, double angle, double min, double max, int length, int width, int height) {
+    public static JPanel renderGame(double pivot, double angle, double min, double max, double length, int width, int height) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        image.getGraphics().setColor(Color.BLACK);
-        image.getGraphics().drawRect(0, 0, width, height);
         image.getGraphics().setColor(Color.DARK_GRAY);
-        image.getGraphics().drawLine((int)min, 0, (int)max, 0);
+        image.getGraphics().drawLine((int)min, (int)(height/2), (int)max, (int)(height/2));
         image.getGraphics().setColor(Color.WHITE);
-        image.getGraphics().drawOval((int)pivot, 0, 5, 5);
+        image.getGraphics().drawOval((int)(pivot + 2.5), (int)(height/2 - 2.5), 5, 5);
+        double angleRV = Math.PI/2 - angle;
+
         image.getGraphics().setColor(Color.LIGHT_GRAY);
-        image.getGraphics().drawLine((int)pivot, 0, (int)(Math.cos(angle) * length + pivot), (int)(Math.sin(angle) * length));
-        image.getGraphics().drawOval((int)(Math.cos(angle) * length + pivot), (int)(Math.sin(angle) * length), 25, 25);
-        return image;
+        image.getGraphics().drawLine((int)(pivot + 2.5) + (int)(2.5), (int)(height/2), (int)(Math.cos(angleRV) * length + pivot + 2.5), (int)(Math.sin(angleRV) * length) + (int)(height/2));
+        image.getGraphics().drawOval((int)(Math.cos(angleRV) * length + pivot - 25/2 + 2.5), (int)(Math.sin(angleRV) * length + height/2 - 25/2 + 2.5), 25, 25);
+
+        JPanel panel = new JPanel() {
+            @Override
+            public void paintComponent(java.awt.Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(image, 0, 0, null);
+            }
+        };
+        return panel;
     }
 }
