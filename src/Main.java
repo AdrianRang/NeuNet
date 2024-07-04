@@ -9,30 +9,20 @@ import src.NeuralNet.OutputNeuron;
 
 public class Main {
     public static void main(String[] args) {
-        Neuron input = new InputNeuron("Input 1");
-
-        Neuron[] outputNeurons = new Neuron[]{
-            new OutputNeuron("Output 1"),
-            new OutputNeuron("Output 2")
+        Neuron[] inputs = new Neuron[] {
+            new InputNeuron("X Pos"),
+            new InputNeuron("X Speed"),
+            new InputNeuron("Pendulum Angle"),
+            new InputNeuron("Pendulum Speed")
         };
 
-        Network network = new Network(new Neuron[] {input}, 1, 3, 4, outputNeurons, 1, 1);
+        Neuron[] outputNeurons = new Neuron[]{
+            new OutputNeuron("x Speed")
+        };
 
-        double rand = Math.random();
-        input.addInput(rand);
-        double[] output = network.getOutput();
+        Network network = new Network(inputs, 3, 3, 5, outputNeurons, 1, 1);
 
-        System.out.println("Input: " + rand);
-        System.out.println("Output 1: " + output[0]);
-        System.out.println("Output 2: " + output[1]);
-
-        input.reset();
-        input.addInput(0.5);
-        output[0] = network.getOutput()[0];
-        output[1] = network.getOutput()[1];
-        System.out.println("Input: " + 0.5);
-        System.out.println("Output 1: " + output[0]);
-        System.out.println("Output 2: " + output[1]);
+        
 
         JFrame frame = new JFrame("Neural Network");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -42,5 +32,6 @@ public class Main {
         frame.setBackground(Renderer.BACKGROUND_COLOR);
         frame.setVisible(true);
         frame.repaint();
+        System.out.println("Hello, World!");
     }
 }

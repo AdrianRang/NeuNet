@@ -16,11 +16,14 @@ import java.awt.BasicStroke;
 
 public class Renderer {
     static final Color NEURON_COLOR = Color.WHITE;
-    static final Color POS_NEURON_COLOR = Color.CYAN;
-    static final Color NEG_NEURON_COLOR = Color.MAGENTA;
-    static final Color POS_CONNECTION_COLOR = Color.GREEN;
+    static final Color POS_NEURON_COLOR = new Color(0x15803d);
+    static final Color NEG_NEURON_COLOR = new Color(0x450a0a);
+    static final Color POS_CONNECTION_COLOR = new Color(0x4d7c0f);
     static final Color NEG_CONNECTION_COLOR = Color.RED;
     static final Color BACKGROUND_COLOR = Color.BLACK;
+
+    static final double MAX_EXPECTED_OUTPUT = 1;
+    static final double MIN_EXPECTED_OUTPUT = -1;
 
     public static JPanel renderNetwork(Network network, int width, int height, int padding, int neuronSize) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -38,17 +41,26 @@ public class Renderer {
         
         for (int i = 0; i < numNeuronsIn; i++) {
             double output = network.inputNeurons[i].getOutput();
-            int re = (int)(output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed());
-            int gr = (int)(output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen());
-            int bl = (int)(output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue());
+            int re, gr, bl;
+            if (output >= 0) {
+                re = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getRed()));
+                gr = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getGreen()));
+                bl = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getBlue()));
+            } else {
+                re = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getRed()));
+                gr = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getGreen()));
+                bl = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getBlue()));
+            }
+            
             g.setColor(new Color(re, gr, bl));
             g.fillOval(padding, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5), neuronSize, neuronSize);
             network.inputNeurons[i].setPos(padding, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5));
             InputNeuron in = (InputNeuron)(network.inputNeurons[i]);
             g.setFont(Font.getFont("Arial"));
+            g.setFont(g.getFont().deriveFont(Font.BOLD).deriveFont(15.0f));
             g.setColor(Color.WHITE);
-            g.drawString(in.name, padding + neuronSize + 5, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize);
-            g.drawString("Output: " + in.getOutput(), padding + neuronSize + 5, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize + 15);
+            g.drawString(in.name, padding, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize + 15);
+            g.drawString("Output: " + String.valueOf((double)((int)(in.getOutput() * 1000))/1000), padding, padding + i * spaceBetweenNeuronsIn + (height - boundingBoxIn[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize + 30);
         }
 
         for (int i = 0; i < numHiddenLayers; i++) {
@@ -62,22 +74,22 @@ public class Renderer {
                 double output = network.hiddenLayers.get(i).get(j).getOutput();
                 int re, gr, bl;
                 if (output >= 0) {
-                    re = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed()));
-                    gr = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen()));
-                    bl = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue()));
+                    re = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getRed()));
+                    gr = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getGreen()));
+                    bl = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getBlue()));
                 } else {
-                    re = (int) Math.min(255, Math.abs(output * (NEG_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed()));
-                    gr = (int) Math.min(255, Math.abs(output * (NEG_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen()));
-                    bl = (int) Math.min(255, Math.abs(output * (NEG_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue()));
+                    re = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getRed()));
+                    gr = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getGreen()));
+                    bl = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getBlue()));
                 }
+
                 g.setColor(new Color(re, gr, bl));
 
                 g.fillOval((padding + i * spaceBetweenLayers + (width - 2 * padding - (spaceBetweenLayers * numHiddenLayers))/2), padding + j * spaceBetweenNeurons + (height - boundingBox[1]) / 2 - (int)(neuronSize * 2.5), neuronSize, neuronSize);
 
-                g.setFont(Font.getFont("Arial"));
                 g.setColor(Color.WHITE);
-                g.drawString("output: " + String.valueOf((double)((int)(network.hiddenLayers.get(i).get(j).getOutput() * 1000))/1000), (padding + i * spaceBetweenLayers + (width - 2 * padding - (spaceBetweenLayers * numHiddenLayers))/2) + neuronSize + 5, padding + j * spaceBetweenNeurons + (height - boundingBox[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize);
-                g.drawString("bias: " + String.valueOf((double)((int)(((HiddenNeuron)(network.hiddenLayers.get(i).get(j))).getBias() * 1000))/1000), (padding + i * spaceBetweenLayers + (width - 2 * padding - (spaceBetweenLayers * numHiddenLayers))/2) + neuronSize + 5, padding + j * spaceBetweenNeurons + (height - boundingBox[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize + 15);
+                g.drawString("Output: " + String.valueOf((double)((int)(network.hiddenLayers.get(i).get(j).getOutput() * 1000))/1000), (padding + i * spaceBetweenLayers + (width - 2 * padding - (spaceBetweenLayers * numHiddenLayers))/2), padding + j * spaceBetweenNeurons + (height - boundingBox[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize + 15);
+                g.drawString("Bias: " + String.valueOf((double)((int)(((HiddenNeuron)(network.hiddenLayers.get(i).get(j))).getBias() * 1000))/1000), (padding + i * spaceBetweenLayers + (width - 2 * padding - (spaceBetweenLayers * numHiddenLayers))/2), padding + j * spaceBetweenNeurons + (height - boundingBox[1]) / 2 - (int)(neuronSize * 2.5) + neuronSize + 30);
             }
         }
 
@@ -87,13 +99,13 @@ public class Renderer {
             double output = network.outputNeurons[i].getOutput();
             int re, gr, bl;
             if (output >= 0) {
-                re = (int) Math.min(255, (Math.abs(output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) + NEURON_COLOR.getRed())));
-                gr = (int) Math.min(255, (Math.abs(output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) + NEURON_COLOR.getGreen())));
-                bl = (int) Math.min(255, (Math.abs(output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) + NEURON_COLOR.getBlue())));
+                re = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getRed()));
+                gr = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getGreen()));
+                bl = (int) Math.min(255, Math.abs(output * (POS_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getBlue()));
             } else {
-                re = (int) Math.min(255, (Math.abs(output * (NEURON_COLOR.getRed() - NEG_NEURON_COLOR.getRed()) + NEG_NEURON_COLOR.getRed())));
-                gr = (int) Math.min(255, (Math.abs(output * (NEURON_COLOR.getGreen() - NEG_NEURON_COLOR.getGreen()) + NEG_NEURON_COLOR.getGreen())));
-                bl = (int) Math.min(255, (Math.abs(output * (NEURON_COLOR.getBlue() - NEG_NEURON_COLOR.getBlue()) + NEG_NEURON_COLOR.getBlue())));
+                re = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getRed() - NEURON_COLOR.getRed()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getRed()));
+                gr = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getGreen() - NEURON_COLOR.getGreen()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getGreen()));
+                bl = (int) Math.min(255, Math.abs(output * Math.abs(NEG_NEURON_COLOR.getBlue() - NEURON_COLOR.getBlue()) / (MAX_EXPECTED_OUTPUT/2 - MIN_EXPECTED_OUTPUT/2) + NEURON_COLOR.getBlue()));
             }
             g.setColor(new Color(re, gr, bl));
 
@@ -102,7 +114,6 @@ public class Renderer {
             network.outputNeurons[i].setPos(width - padding - neuronSize, padding + i * spaceBetweenNeuronsOut + (height - boundingBoxOut[1]) / 2 - (int)(neuronSize * 2.5));
 
             OutputNeuron out = (OutputNeuron)(network.outputNeurons[i]);
-            g.setFont(Font.getFont("Arial"));
             g.setColor(Color.WHITE);
 
             g.drawString(String.valueOf((double)(int)(out.getOutput() * 100000) / 100000), width - padding - neuronSize - 5 - String.valueOf((double)(int)(out.getOutput() * 100000) / 100000).length() * 5, padding + i * spaceBetweenNeuronsOut + (height - boundingBoxOut[1]) / 2 - (int)(neuronSize * 2.5) - 5);

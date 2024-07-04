@@ -87,6 +87,7 @@ public class Network {
                 currCons.add(new int[] {inputIndex, outputIndex});
             }
         }
+        System.out.println(connectors.size());
 
         currCons.clear();
 
@@ -97,7 +98,7 @@ public class Network {
             int inputIndex = (int)(Math.random() * hiddenLayers.get(hiddenLayers.size() - 1).size());
             int outputIndex = (int)(Math.random() * outputNeurons.length);
             try {
-                if(contains(currCons, new int[] {inputIndex, outputIndex})) {i--; continue;};
+                if(contains(currCons, new int[] {inputIndex, outputIndex})) {continue;};
                 connectors.add(new Connector(hiddenLayers.get(hiddenLayers.size() - 1).get(inputIndex), outputNeurons[outputIndex], Math.random() * 2 - 1));
                 currCons.add(new int[] {inputIndex, outputIndex});
             } catch (Exception e) {
