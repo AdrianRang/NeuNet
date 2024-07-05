@@ -29,7 +29,7 @@ public class OutputNeuron implements Neuron{
     }
 
     public void reset() {
-        output = 0;
+        this.inputs.clear();
     }
 
     public void addInput(double input) {
