@@ -31,5 +31,5 @@ I wish
 
 ## TODO:
 - ~~Generate Neural Network~~
-- Render Neural Network
-- Add challlenge
+- ~~Render Neural Network~~
+- Add challenge
