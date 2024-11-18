@@ -31,7 +31,13 @@ public class HiddenNeuron implements Neuron {
     public HiddenNeuron(double bias) {
         this.bias = bias;
     }
-
+    
+    public HiddenNeuron(HiddenNeuron og) {
+        this.bias = og.bias;
+        this.inputs = og.inputs;
+        this.x = og.x;
+        this.y = og.y;
+    }
     /**
      * Calculates and returns the output of the hidden neuron.
      *

@@ -30,4 +30,12 @@ public class Connector {
     public void transmit() {
         to.addInput(from.getOutput() * weight);
     }
+
+    public Neuron getFromNeuron() {
+        return from;
+    }
+
+    public Neuron getToNeuron() {
+        return to;
+    }
 }
