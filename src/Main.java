@@ -30,16 +30,16 @@ public class Main {
     static final double LENGTH = 60;
     static final double FRICTION = 0.001;
     
-    static final int FRAME_COUNT = 500;
-    static final int AGENTS = 50;
+    static final int FRAME_COUNT = 2000;
+    static final int AGENTS = 150;
     static final int[] COMPOSITION = new int[]{ // How much will each place reproduce https://www.desmos.com/calculator/tbmv58rlbs // Note to self think of the way you are going to do it BEFORE spending an hour learning n-anian sumation in desmos
-        20, // 1st place, 1 is equal
-        11, // 2nd place, 1 is equal
-        8,  // 3rd place, 1 is equal
-        6,  // So on
-        5,
+        40, // 1st place, 1 is equal
+        22, // 2nd place, 1 is equal
+        16,  // 3rd place, 1 is equal
+        12,  // So on
+        10,
     }; // The others die
-    static final int GENERATIONS = 500;
+    static final int GENERATIONS = 2000;
 
 
     private static Neuron xPositionNeuron = new InputNeuron("x Position");
@@ -49,7 +49,7 @@ public class Main {
 
     
     public static final Network.Chances CHANCES = new Network.Chances(
-        new Network.Chances.ConnectorChances(0.9, 0.08, 0.3, 0.8, new double[] {-1, 1}),
+        new Network.Chances.ConnectorChances(0.1, 0.08, 0.3, 0.8, new double[] {-1, 1}),
         new Network.Chances.HiddenNeuronChances(0.01, 0.01, 0.8, new double[] {-1, 1})
     );
     
@@ -99,6 +99,8 @@ public class Main {
                     startingNets.add(new Network(networks.get(j), CHANCES));
                 }
             }
+
+            System.err.println("Trained generation " + i);
         }
 
         runGame(startingNets.get(0), true);
@@ -274,6 +276,7 @@ public class Main {
         double a = -5;
         double b = 1;
         double M = 5.4;
-        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M; // https://www.desmos.com/calculator/dc1lqebg9n
+        double distanceToCenter = Math.abs(xPosition - 400);
+        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
     }
 }

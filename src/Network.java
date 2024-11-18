@@ -211,27 +211,34 @@ public class Network {
         //     }
         // }
 
-        // ArrayList<Connector> toBeRemoved = new ArrayList<>();
-        // ArrayList<Connector> toBeAdded = new ArrayList<>();
-        // for (Connector connector : connectors) {
-        //     if (Math.random() < chances.connectorChances.creation) {
-        //     // Create a new connector
-        //     Neuron fromNeuron = inputNeurons[(int) (Math.random() * inputNeurons.length)];
-        //     Neuron toNeuron = outputNeurons[(int) (Math.random() * outputNeurons.length)];
-        //     toBeAdded.add(new Connector(fromNeuron, toNeuron, chances.connectorChances.weighRange[0] + Math.random() * (chances.connectorChances.weighRange[1] - chances.connectorChances.weighRange[0])));
-        //     }
-        //     if (Math.random() < chances.connectorChances.deletion) {
-        //     // Delete the connector
-        //     toBeRemoved.add(connector);
-        //     }
-        //     if (Math.random() < chances.connectorChances.change) {
-        //     // Change the weight of the connector
-        //     connector.setWeight(chances.connectorChances.weighRange[0] + Math.random() * (chances.connectorChances.weighRange[1] - chances.connectorChances.weighRange[0]));
-        //     }
-        // }
+        ArrayList<Connector> toBeRemoved = new ArrayList<>();
+        ArrayList<Connector> toBeAdded = new ArrayList<>();
+        for (Connector connector : connectors) {
+            if (Math.random() < chances.connectorChances.creation) {
+                if(Math.random() < 0.5) {
+                    // Create a new connector
+                    Neuron fromNeuron = inputNeurons[(int) (Math.random() * inputNeurons.length)];
+                    Neuron toNeuron = hiddenLayers.get(0).get((int) (Math.random() * hiddenLayers.get(0).size()));
+                    toBeAdded.add(new Connector(fromNeuron, toNeuron, chances.connectorChances.weighRange[0] + Math.random() * (chances.connectorChances.weighRange[1] - chances.connectorChances.weighRange[0])));
+                } else {
+                    // Create a new connector
+                    Neuron fromNeuron = hiddenLayers.get(0).get((int) (Math.random() * hiddenLayers.get(0).size()));
+                    Neuron toNeuron = outputNeurons[(int) (Math.random() * outputNeurons.length)];
+                    toBeAdded.add(new Connector(fromNeuron, toNeuron, chances.connectorChances.weighRange[0] + Math.random() * (chances.connectorChances.weighRange[1] - chances.connectorChances.weighRange[0])));
+                }
+            }
+            if (Math.random() < chances.connectorChances.deletion) {
+            // Delete the connector
+            toBeRemoved.add(connector);
+            }
+            if (Math.random() < chances.connectorChances.change) {
+            // Change the weight of the connector
+            connector.setWeight(chances.connectorChances.weighRange[0] + Math.random() * (chances.connectorChances.weighRange[1] - chances.connectorChances.weighRange[0]));
+            }
+        }
 
-        // connectors.removeAll(toBeRemoved);
-        // connectors.addAll(toBeAdded);
+        connectors.removeAll(toBeRemoved);
+        connectors.addAll(toBeAdded);
     }
 
     /**

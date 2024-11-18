@@ -24,10 +24,11 @@ Outputs:
 > Might change to acceleration
 
 ## The Training
-Not there yet...
+It trains, can generate great outputs but it is still a bit unreliable, takes a while, in the out directory there's the score of all generations sorted from most to least, note that after wow I changed the evaluation function to take into account distance from center.
 
 ## Results
-I wish
+![1st](https://cloud-cfl2jh8pm-hack-club-bot.vercel.app/0worked__1.png)
+(Note that the renderer broke somewhere along the way of coppying networks)
 
 ## TODO:
 - ~~Generate Neural Network~~
