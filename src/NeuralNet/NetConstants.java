@@ -1,5 +1,5 @@
 package src.NeuralNet;
 
 public class NetConstants {
-    public static final HiddenNeuron.ActivationFunction activationFunction = HiddenNeuron.ActivationFunction.LEAKY_RELU;
+    public static final HiddenNeuron.ActivationFunction activationFunction = HiddenNeuron.ActivationFunction.RELU;
 }

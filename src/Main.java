@@ -60,8 +60,8 @@ public class Main {
 
     
     public static final Network.Chances CHANCES = new Network.Chances(
-        new Network.Chances.ConnectorChances(0.1, 0.12, 0.8, 0.8, new double[] {-1, 1}),
-        new Network.Chances.HiddenNeuronChances(0.1, 0.05, 0.8, new double[] {-1, 1})
+        new Network.Chances.ConnectorChances(0.6, 0.61, 0.8, 0.8, new double[] {-1, 1}),
+        new Network.Chances.HiddenNeuronChances(0.5, 0.51, 0.8, new double[] {-1, 1})
     );
 
     @SuppressWarnings("unused")
@@ -106,6 +106,7 @@ public class Main {
 
         int bestScore = 0;
 
+        long avgTime = 0;
         for (int i = 0; i < GENERATIONS; i++) {
             long stTime = System.currentTimeMillis();
             for(Network net : startingNets) {
@@ -133,7 +134,8 @@ public class Main {
             long elapsedTime = System.currentTimeMillis() - stTime;
             int progress = (int) ((i / (double) GENERATIONS) * 100);
             String progressBar = String.format("[%s%s" + RESET +"] %d%%", (CYAN + BOLD + "=").repeat(progress / 2), " ".repeat(50 - progress / 2), progress);
-            long estimatedTime = elapsedTime * (GENERATIONS - i);
+            avgTime = ((avgTime * (i)) + elapsedTime)/(i+1);
+            long estimatedTime = avgTime * (GENERATIONS - i);
             String t = "";
 
             String col = RED;
@@ -183,22 +185,10 @@ public class Main {
             time += String.format("%03d ms", milliseconds);
         }
 
-        // System.out.println(
-        //     GREEN + BOLD + 
-        //     "╔════════════════════════════════════════════╗\n" +
-        //     "║      "+RESET+BOLD+"        Training Succes      "+GREEN+"         ║\n" +
-        //     "║"+RESET+"         Trained for " + RED + BOLD + GENERATIONS + RESET + " Generations       "+GREEN+BOLD+"║\n" +
-        //     "║"+RESET+"   Each Generation Consisted of " +RED+BOLD+ AGENTS +RESET+ " Agents  "+GREEN+BOLD+"║\n" +
-        //     "║" + RESET + "          Trained for " + RED + BOLD + FRAME_COUNT + RESET + " frames           "+GREEN+BOLD+"║\n" +
-        //     "║"+RESET+" Best Agent achieved a score of " + RED + BOLD + bestScore + RESET + " Points "+GREEN+BOLD+"║\n" +
-        //     "║"+RESET+" Took " + time + " to train which is on average " + timePerGen + GREEN+BOLD+" per generation║\n" +
-        //     "╚════════════════════════════════════════════╝" + RESET
-        // );
-
         Network rand = new Network(inputs, 1, 6, 4, outputNeurons, 1, 1);
         double randScore = runGame(rand, false);
         String[] lines = {
-            "Training Success",
+            BOLD + "Training Success",
             "Trained for " + RED + BOLD + GENERATIONS + RESET + " Generations",
             "Each Generation Consisted of " + RED + BOLD + AGENTS + RESET + " Agents",
             "Trained for " + RED + BOLD + FRAME_COUNT + RESET + " frames",
@@ -382,7 +372,7 @@ public class Main {
         double b = 1;
         double M = 5.4;
         double distanceToCenter = Math.abs(xPosition - 400);
-        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
+        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M;// - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
     }
 
     static double gameStep(double output) {
@@ -410,6 +400,6 @@ public class Main {
         double b = 1;
         double M = 5.4;
         double distanceToCenter = Math.abs(xPosition - 400);
-        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
+        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M;// - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
     }
 }

@@ -29,4 +29,6 @@ for generation in generations:
     
 
 plt.plot(bestPlayer)
+plt.xlabel("Generation")
+plt.ylabel("Score")
 plt.show()
