@@ -1,5 +1,7 @@
 package src.NeuralNet;
 
+import org.json.simple.JSONObject;
+
 public class Connector {
     private Neuron from;
     private Neuron to;
@@ -37,5 +39,30 @@ public class Connector {
 
     public Neuron getToNeuron() {
         return to;
+    }
+
+    @SuppressWarnings("unchecked")
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("from", from.getId());
+        json.put("to", to.getId());
+        json.put("weight", weight);
+        return json;
+    }
+
+    public static Connector fromJSON(JSONObject json, Neuron[] neurons) {
+        int fromId = ((Long) json.get("from")).intValue();
+        int toId = ((Long) json.get("to")).intValue();
+        double weight = (Double) json.get("weight");
+
+        Neuron from = null;
+        Neuron to = null;
+
+        for (Neuron neu : neurons) {
+            if(neu.getId() == fromId) from = neu;
+            else if (neu.getId() == toId) to = neu;
+        }
+
+        return new Connector(from, to, weight);
     }
 }

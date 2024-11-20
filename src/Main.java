@@ -30,16 +30,16 @@ public class Main {
     static final double LENGTH = 60;
     static final double FRICTION = 0.001;
     
-    static final int FRAME_COUNT = 2000;
-    static final int AGENTS = 150;
+    static int FRAME_COUNT = 2000;
+    static final int AGENTS = 200;
     static final int[] COMPOSITION = new int[]{ // How much will each place reproduce https://www.desmos.com/calculator/tbmv58rlbs // Note to self think of the way you are going to do it BEFORE spending an hour learning n-anian sumation in desmos
-        40, // 1st place, 1 is equal
-        22, // 2nd place, 1 is equal
-        16,  // 3rd place, 1 is equal
-        12,  // So on
-        10,
+        80, // 1st place, 1 is equal
+        44, // 2nd place, 1 is equal
+        30,  // 3rd place, 1 is equal
+        26,  // So on
+        20,
     }; // The others die
-    static final int GENERATIONS = 2000;
+    static final int GENERATIONS = 1500;
 
 
     private static Neuron xPositionNeuron = new InputNeuron("x Position");
@@ -49,8 +49,14 @@ public class Main {
 
     
     public static final Network.Chances CHANCES = new Network.Chances(
-        new Network.Chances.ConnectorChances(0.1, 0.08, 0.3, 0.8, new double[] {-1, 1}),
-        new Network.Chances.HiddenNeuronChances(0.01, 0.01, 0.8, new double[] {-1, 1})
+        new Network.Chances.ConnectorChances(1, 0, 0.8, 0.8, new double[] {-1, 1}),
+        new Network.Chances.HiddenNeuronChances(0, 0, 0.8, new double[] {-1, 1})
+    );
+
+    @SuppressWarnings("unused")
+    private static final Network.Chances CHANCES_ZERO = new Network.Chances(
+        new Network.Chances.ConnectorChances(0, 0, 0, 0, new double[] {-1, 1}),
+        new Network.Chances.HiddenNeuronChances(0, 0.3, 0, new double[] {-1, 1})
     );
     
     public static void main(String[] args) throws IOException {
@@ -76,13 +82,21 @@ public class Main {
             startingNets.add(new Network(inputs, 1, 6, 4, outputNeurons, 1, 1));
         }
 
-        // Network net = new Network(inputs, 1, 6, 4, outputNeurons, 1, 1);
-        // Network cpy = new Network(net, CHANCES);
+        //! DEBUG
+        // Network netw = new Network(inputs, 1, 6, 4, outputNeurons, 1, 1);
+        // runGame(netw, true);
+        // for(int i = 0; i < 5; i++) {
+        //     Network cpy = new Network(netw, CHANCES_ZERO);
 
-        // runGame(net, true);
-        // runGame(cpy, true);
+        //     runGame(cpy, true);
+        // }
+
+        // // runGame(net, true);
 
         for (int i = 0; i < GENERATIONS; i++) {
+            for(Network net : startingNets) {
+                net.resetAll();
+            }
             ArrayList<Network> networks = newGame(startingNets);
             
             results.write("-- GEN --\n");
@@ -103,6 +117,8 @@ public class Main {
             System.err.println("Trained generation " + i);
         }
 
+        FRAME_COUNT = 5000;
+        startingNets.get(0).outputAsJSON();
         runGame(startingNets.get(0), true);
 
         results.close();
@@ -277,6 +293,6 @@ public class Main {
         double b = 1;
         double M = 5.4;
         double distanceToCenter = Math.abs(xPosition - 400);
-        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
+        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M; // - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
     }
 }

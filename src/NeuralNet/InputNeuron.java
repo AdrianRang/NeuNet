@@ -1,5 +1,7 @@
 package src.NeuralNet;
 
+import org.json.simple.JSONObject;
+
 /**
  * Represents an input neuron in a neural network.
  */
@@ -8,12 +10,15 @@ public class InputNeuron implements Neuron {
     private int x;
     private int y;
 
+    private int id;
+
     public final String name;
 
     /**
      * Creates an input neuron with an initial output of 0.
      */
     public InputNeuron(String name) {
+        this.id = (int)(Math.random() * 100000);
         this.name = name;
         output = 0;
     }
@@ -71,5 +76,45 @@ public class InputNeuron implements Neuron {
      */
     public int getY() {
         return y;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Converts the input neuron to a JSON string.
+     *
+     * @return the JSON representation of the input neuron
+     */
+    @SuppressWarnings("unchecked")
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        json.put("x", x);
+        json.put("y", y);
+        json.put("id", id);
+        return json;
+    }
+
+    public static InputNeuron fromJSON(JSONObject json) {
+        String name = (String) json.get("name");
+        int x = ((Long) json.get("x")).intValue();
+        int y = ((Long) json.get("y")).intValue();
+        int id = ((Long) json.get("id")).intValue();
+
+        InputNeuron neuron = new InputNeuron(name);
+        neuron.setPos(x, y);
+        neuron.id = id;
+
+        return neuron;
     }
 }
