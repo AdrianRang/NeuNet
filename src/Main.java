@@ -12,6 +12,8 @@ import src.NeuralNet.InputNeuron;
 import src.NeuralNet.Neuron;
 import src.NeuralNet.OutputNeuron;
 
+import src.Constants.*;
+
 public class Main {
     static final String BOLD = "\u001B[1m";
     static final String BLACK = "\u001B[30m";
@@ -41,16 +43,10 @@ public class Main {
     static final double LENGTH = 60;
     static final double FRICTION = 0.001;
     
-    static int FRAME_COUNT = 2000;
-    static final int AGENTS = 200;
-    static final int[] COMPOSITION = new int[]{ // How much will each place reproduce https://www.desmos.com/calculator/tbmv58rlbs // Note to self think of the way you are going to do it BEFORE spending an hour learning n-anian sumation in desmos
-        80, // 1st place, 1 is equal
-        44, // 2nd place, 1 is equal
-        30,  // 3rd place, 1 is equal
-        26,  // So on
-        20,
-    }; // The others die
-    static final int GENERATIONS = 1000;
+    static final int FRAME_COUNT = Constants.FRAME_COUNT;
+    static final int AGENTS = Constants.AGENTS;
+    static final int[] COMPOSITION = Constants.COMPOSITION;
+    static final int GENERATIONS = Constants.GENERATIONS;
 
 
     private static Neuron xPositionNeuron = new InputNeuron("x Position");
@@ -59,15 +55,13 @@ public class Main {
     private static Neuron pendulumSpeedNeuron = new InputNeuron("Pendulum Speed");
 
     
-    public static final Network.Chances CHANCES = new Network.Chances(
-        new Network.Chances.ConnectorChances(0.6, 0.61, 0.8, 0.8, new double[] {-1, 1}),
-        new Network.Chances.HiddenNeuronChances(0.5, 0.51, 0.8, new double[] {-1, 1})
-    );
+    public static final Network.Chances CHANCES = Constants.CHANCES;
 
     @SuppressWarnings("unused")
     private static final Network.Chances CHANCES_ZERO = new Network.Chances(
         new Network.Chances.ConnectorChances(0, 0, 0, 0, new double[] {-1, 1}),
-        new Network.Chances.HiddenNeuronChances(0, 0.3, 0, new double[] {-1, 1})
+        new Network.Chances.HiddenNeuronChances(0, 0, 0, new double[] {-1, 1}),
+        new Network.Chances.LayerChances(0, 0)
     );
     
     public static void main(String[] args) throws IOException {
@@ -75,6 +69,16 @@ public class Main {
         FileWriter results = new FileWriter("out/out.txt");
 
         ArrayList<Network> startingNets = new ArrayList<>();
+
+        // Network jsonnet = new Network("keep.json");
+
+        // xPositionNeuron = jsonnet.inputNeurons[0];
+        // xSpeedNeuron = jsonnet.inputNeurons[1];
+        // pendulumAngleNeuron = jsonnet.inputNeurons[2];
+        // pendulumSpeedNeuron = jsonnet.inputNeurons[3];
+
+        // startingNets.add(jsonnet);
+
 
         Neuron[] inputs = new Neuron[] {
             xPositionNeuron,
@@ -90,18 +94,28 @@ public class Main {
         };
 
         for(int i = 0; i < AGENTS; i++) {
-            startingNets.add(new Network(inputs, 1, 6, 4, outputNeurons, 1, 1));
+            startingNets.add(new Network(inputs, 3, 6, 4, outputNeurons, 1, 1));
         }
+
+        // for(int i = 0; i < AGENTS - 1; i++) {
+        //     startingNets.add(new Network(jsonnet, CHANCES));
+        // }
 
         //! DEBUG
         // Network netw = new Network(inputs, 1, 6, 4, outputNeurons, 1, 1);
+        // // Network cpy = new Network(new Network(netw, CHANCES_ZERO), CHANCES_ZERO);
         // runGame(netw, true);
+        // // runGame(cpy, true);
         // for(int i = 0; i < 5; i++) {
         //     Network cpy = new Network(netw, CHANCES_ZERO);
 
         //     runGame(cpy, true);
+
+        //     netw = cpy;
         // }
 
+        // netw.outputAsJSON();
+        // if(true) return;
         // // runGame(net, true);
 
         int bestScore = 0;
@@ -155,7 +169,7 @@ public class Main {
             if (seconds > 0) {
                 t += String.format("%02d sec ", seconds);
             }
-            System.out.print("\r" + progressBar + RESET + " : " + i + "/" + GENERATIONS + " | Estimated time remaining: " + col + t + RESET);
+            System.out.print("\r" + progressBar + RESET + " : " + i + "/" + GENERATIONS + " Current score: " + GREEN + (bestScore) + RESET + " | Estimated time remaining: " + col + t + RESET + "     ");
         }
 
         System.out.println();
@@ -185,15 +199,13 @@ public class Main {
             time += String.format("%03d ms", milliseconds);
         }
 
-        Network rand = new Network(inputs, 1, 6, 4, outputNeurons, 1, 1);
-        double randScore = runGame(rand, false);
         String[] lines = {
             BOLD + "Training Success",
             "Trained for " + RED + BOLD + GENERATIONS + RESET + " Generations",
             "Each Generation Consisted of " + RED + BOLD + AGENTS + RESET + " Agents",
             "Trained for " + RED + BOLD + FRAME_COUNT + RESET + " frames",
             "Best Agent achieved a score of " + RED + BOLD + bestScore + RESET + " Points",
-            String.format("That is"+BOLD+" %.2f%%"+RESET+" better than a random Network", ((bestScore / randScore) * 100)),
+            "That is " + (bestScore / FRAME_COUNT) + " points per frame",
             "Took " + time + " to train which is on average " + timePerGen + " per generation"
         };
         
@@ -201,7 +213,7 @@ public class Main {
 
         printBox(lines);
 
-        FRAME_COUNT = 5000;
+        // FRAME_COUNT = 1000;
         startingNets.get(0).outputAsJSON();
         runGame(startingNets.get(0), true);
 
@@ -304,7 +316,7 @@ public class Main {
             double score = 0;
             for (int i = 0; i < FRAME_COUNT; i++) {
                 frame.getContentPane().removeAll();
-                frame.add(Renderer.renderGame(xPosition, pendulumAngle, 10, 790, LENGTH, 800, 600, acceleration));
+                frame.add(Renderer.renderGame(xPosition, pendulumAngle % (2*Math.PI), 10, 790, LENGTH, 800, 600, acceleration));
                 frame.repaint();
                 frame.revalidate();
 
@@ -315,7 +327,7 @@ public class Main {
 
                 xPositionNeuron.addInput(xPosition);
                 xSpeedNeuron.addInput(xSpeed);
-                pendulumAngleNeuron.addInput(pendulumAngle);
+                pendulumAngleNeuron.addInput(pendulumAngle % (2*Math.PI));
                 pendulumSpeedNeuron.addInput(pendulumSpeed);
                 double thisScore = gameStep(network.getOutput()[0]);
                 // System.out.println("Score " + thisScore);
@@ -336,7 +348,7 @@ public class Main {
             for(int i = 0; i < FRAME_COUNT; i++) {
                 xPositionNeuron.addInput(xPosition);
                 xSpeedNeuron.addInput(xSpeed);
-                pendulumAngleNeuron.addInput(pendulumAngle);
+                pendulumAngleNeuron.addInput(pendulumAngle % (2*Math.PI));
                 pendulumSpeedNeuron.addInput(pendulumSpeed);
                 double thisScore = gameStep(network.getOutput()[0]);
                 // System.out.println("Score " + thisScore);
@@ -351,10 +363,13 @@ public class Main {
     static double gameStep() {
         // double deltaTime = System.currentTimeMillis() - lastFrameTime;
 
-        if (xPosition < 10 || xPosition > 790) {
-            xSpeed = 0;
-            xPosition = xPosition < 10 ? 10 : 790;
-        }
+        // if (xPosition < 10 || xPosition > 790) {
+        //     xSpeed = 0;
+        //     xPosition = xPosition < 10 ? 10 : 790;
+        // }
+
+        if (xPosition < 10) xPosition = 785;
+        if (xPosition > 790) xPosition = 15;
         
         force = -GRAVITY * Math.sin(pendulumAngle) + -acceleration * Math.cos(pendulumAngle)/10;
         force -= FRICTION * pendulumSpeed;
@@ -372,16 +387,26 @@ public class Main {
         double b = 1;
         double M = 5.4;
         double distanceToCenter = Math.abs(xPosition - 400);
-        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M;// - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
+        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M - distanceToCenter/500 + 0.2 - (Math.pow(1.8, Math.abs(xSpeed / 0.9)) + 1)/10; // https://www.desmos.com/calculator/dc1lqebg9n
     }
 
     static double gameStep(double output) {
+        double score = 0;
         // double deltaTime = System.currentTimeMillis() - lastFrameTime;
         acceleration = Math.min(0.1, Math.max(output * scalingFactor, -0.1));
 
-        if (xPosition < 10 || xPosition > 790) {
-            xSpeed = 0;
-            xPosition = xPosition < 10 ? 10 : 790;
+        // if (xPosition < 10 || xPosition > 790) {
+        //     xSpeed = 0;
+        //     xPosition = xPosition < 10 ? 10 : 790;
+        // }
+
+        if (xPosition < 10) {
+            xPosition = 785;
+            score -= 100;
+        }
+        if (xPosition > 790){
+            xPosition = 15;
+            score -= 100;
         }
         
         force = -GRAVITY * Math.sin(pendulumAngle) + -acceleration * Math.cos(pendulumAngle)/10;
@@ -396,10 +421,10 @@ public class Main {
         lastFrameTime = System.currentTimeMillis();
         lastFrameX = xPosition;
 
-        double a = -5;
-        double b = 1;
-        double M = 5.4;
+        double a = -7;
+        double M = -3;
         double distanceToCenter = Math.abs(xPosition - 400);
-        return a * Math.abs(((b * pendulumAngle) % (Math.PI * 2)) - Math.PI) + M;// - distanceToCenter/500 + 0.2; // https://www.desmos.com/calculator/dc1lqebg9n
+        score += a * Math.cos(pendulumAngle) + M - distanceToCenter/50 - (Math.pow(1.8, Math.abs(xSpeed / 0.9)) - 1)/8; // https://www.desmos.com/calculator/dc1lqebg9n
+        return score;
     }
 }

@@ -7,6 +7,7 @@ generations = []
 current_generation = []
 
 for line in file:
+    if line.strip().__contains__("#"): break
     if line.strip() == "-- GEN --":
         if current_generation:
             generations.append(np.array(current_generation))

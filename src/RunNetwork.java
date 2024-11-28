@@ -26,17 +26,18 @@ public class RunNetwork {
     static final double LENGTH = 60;
     static final double FRICTION = 0.001;
 
-    static final int FRAME_COUNT = 1000;
+    static final int FRAME_COUNT = 10000;
 
     public static void main(String[] args) throws FileNotFoundException{
-        Network network = new Network("network.json");
+        String path = "network.json";
+        Network network = new Network(path);
         
         Neuron[] inputs = network.inputNeurons;
 
         JFrame frame = new JFrame("Pendulum");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
-        JPanel panel = Renderer.renderGame(xPosition, pendulumAngle, 10, 790, LENGTH, 800, 600);
+        JPanel panel = Renderer.renderGame(xPosition, pendulumAngle % (2*Math.PI), 10, 790, LENGTH, 800, 600);
         frame.add(panel);
         frame.setBackground(Renderer.BACKGROUND_COLOR);
         frame.setVisible(true);
@@ -73,7 +74,7 @@ public class RunNetwork {
         double score = 0;
         for (int i = 0; i < FRAME_COUNT; i++) {
             frame.getContentPane().removeAll();
-            frame.add(Renderer.renderGame(xPosition, pendulumAngle, 10, 790, LENGTH, 800, 600, acceleration));
+            frame.add(Renderer.renderGame(xPosition, pendulumAngle % (2*Math.PI), 10, 790, LENGTH, 800, 600, acceleration));
             frame.repaint();
             frame.revalidate();
 
@@ -89,7 +90,7 @@ public class RunNetwork {
                 } else if (input.getName().equals("x Speed")) {
                     input.addInput(xSpeed);
                 } else if (input.getName().equals("Pendulum Angle")) {
-                    input.addInput(pendulumAngle);
+                    input.addInput(pendulumAngle % (2*Math.PI));
                 } else if (input.getName().equals("Pendulum Speed")) {
                     input.addInput(pendulumSpeed);
                 }
@@ -97,7 +98,7 @@ public class RunNetwork {
 
 
             double thisScore = gameStep(network.getOutput()[0]);
-            System.out.println("Score " + thisScore);
+            // System.out.println("Score " + thisScore);
             score += thisScore;
             try {
                 Thread.sleep(10);
@@ -114,10 +115,13 @@ public class RunNetwork {
         // double deltaTime = System.currentTimeMillis() - lastFrameTime;
         acceleration = Math.min(0.1, Math.max(output * scalingFactor, -0.1));
 
-        if (xPosition < 10 || xPosition > 790) {
-            xSpeed = 0;
-            xPosition = xPosition < 10 ? 10 : 790;
-        }
+        // if (xPosition < 10 || xPosition > 790) {
+        //     xSpeed = 0;
+        //     xPosition = xPosition < 10 ? 10 : 790;
+        // }
+
+        if (xPosition < 10) xPosition = 785;
+        if (xPosition > 790) xPosition = 15;
         
         force = -GRAVITY * Math.sin(pendulumAngle) + -acceleration * Math.cos(pendulumAngle)/10;
         force -= FRICTION * pendulumSpeed;

@@ -55,13 +55,25 @@ public class Network {
                 this.biasRange = biasRange;
             }
         }
+
+        public static class LayerChances {
+            public double creationChance;
+            public double deletionChance;
+
+            public LayerChances(double creationChance, double deletionChance) {
+                this.creationChance = creationChance;
+                this.deletionChance = deletionChance;
+            }
+        }
         
         public ConnectorChances connectorChances;
         public HiddenNeuronChances hiddenNeuronChances;
+        public LayerChances layerChances;
 
-        public Chances(ConnectorChances connectorChances, HiddenNeuronChances hiddenNeuronChances) {
+        public Chances(ConnectorChances connectorChances, HiddenNeuronChances hiddenNeuronChances, LayerChances layerChances) {
             this.connectorChances = connectorChances;
             this.hiddenNeuronChances = hiddenNeuronChances;
+            this.layerChances = layerChances;
         }
     }
 
@@ -96,7 +108,7 @@ public class Network {
 
             this.connectors = new ArrayList<>();
             for (int i = 0; i < connectorsArray.size(); i++) {
-            this.connectors.add(Connector.fromJSON((JSONObject) connectorsArray.get(i), getNeurons()));
+                this.connectors.add(Connector.fromJSON((JSONObject) connectorsArray.get(i), getNeurons()));
             }
 
             this.maxHiddenLayers = ((Long) jsonObject.get("maxHiddenLayers")).intValue();
@@ -126,14 +138,14 @@ public class Network {
                 addedNeurons.add(fromNeuron.getId());
                 fromNeuron = new HiddenNeuron((HiddenNeuron)fromNeuron);
                 fromNeuron.setId(fromId);
-                addNeuronToLayer((HiddenNeuron) fromNeuron, hiddenLayers);
+                addNeuronToLayer((HiddenNeuron) fromNeuron, net.getLayerIndex(fromId));
             }
 
             if (toNeuron instanceof HiddenNeuron && !addedNeurons.contains(toNeuron.getId())) {
                 addedNeurons.add(toNeuron.getId());
                 toNeuron = new HiddenNeuron((HiddenNeuron)toNeuron);
                 toNeuron.setId(toId);
-                addNeuronToLayer((HiddenNeuron) toNeuron, hiddenLayers);
+                addNeuronToLayer((HiddenNeuron) toNeuron, net.getLayerIndex(toId));
             }
 
             this.connectors.add(new Connector(findById(fromNeuron.getId()), findById(toNeuron.getId()), connector.getWeight()));
@@ -182,14 +194,14 @@ public class Network {
                 fromNeuron = new HiddenNeuron((HiddenNeuron)fromNeuron);
                 addedNeurons.add(fromNeuron);
                 fromNeuron.setId(fromId);
-                addNeuronToLayer((HiddenNeuron) fromNeuron, hiddenLayers);
+                addNeuronToLayer((HiddenNeuron) fromNeuron, net.getLayerIndex(fromId));
             }
 
             if (toNeuron instanceof HiddenNeuron && !addedNeurons.contains(toNeuron)) {
                 addedNeurons.add(toNeuron);
                 toNeuron = new HiddenNeuron((HiddenNeuron)toNeuron);
                 toNeuron.setId(toId);
-                addNeuronToLayer((HiddenNeuron) toNeuron, hiddenLayers);
+                addNeuronToLayer((HiddenNeuron) toNeuron, net.getLayerIndex(toId));
             }
 
             this.connectors.add(new Connector(findById(fromId), findById(toId), connector.getWeight()));
@@ -207,7 +219,7 @@ public class Network {
                 hiddenNeuron = new HiddenNeuron();
                 toBeAdded.add(hiddenNeuron);
                 }
-                if (Math.random() < chances.hiddenNeuronChances.deletion) {
+                if (Math.random() < chances.hiddenNeuronChances.deletion && layer.size() - toBeRemoved.size() > 0) {
                 // Schedule for deletion
                 toBeRemoved.add(hiddenNeuron);
                 }
@@ -225,56 +237,52 @@ public class Network {
             }
         }
 
+        ArrayList<ArrayList<Neuron>> tbRemoved = new ArrayList<>();
+        for(ArrayList<Neuron> layer : hiddenLayers) {
+            if (layer.size() == 0) tbRemoved.add(layer);
+        }
+        hiddenLayers.removeAll(tbRemoved);
+
         if (hiddenLayers.size() == 0) hiddenLayers.add(new ArrayList<>());
         ArrayList<Connector> toBeRemoved = new ArrayList<>();
         ArrayList<Connector> toBeAdded = new ArrayList<>();
         for (Connector connector : connectors) {
             if (Math.random() < chances.connectorChances.creation) {
-                if(Math.random() < 0.5) {
-                    // boolean created = false;
+                if(hiddenLayers.size() == 0) hiddenLayers.add(new ArrayList<>());
+                // if(Math.random() < 0.5) {
 
+                //     Neuron fromNeuron = inputNeurons[(int) (Math.random() * inputNeurons.length)];
+                //     Neuron toNeuron = hiddenLayers.get(0).get((int) (Math.random() * hiddenLayers.get(0).size()));
+
+                //     toBeAdded.add(new Connector(fromNeuron, toNeuron, chances.connectorChances.weightRange[0] + Math.random() * (chances.connectorChances.weightRange[1] - chances.connectorChances.weightRange[0])));
+                    
+                // } else {
+                //     // Create a new connector
+                //     Neuron fromNeuron = hiddenLayers.get(0).get((int) (Math.random() * hiddenLayers.get(0).size()));
+                //     Neuron toNeuron = outputNeurons[(int) (Math.random() * outputNeurons.length)];
+                    
+                //     toBeAdded.add(new Connector(fromNeuron, toNeuron, chances.connectorChances.weightRange[0] + Math.random() * (chances.connectorChances.weightRange[1] - chances.connectorChances.weightRange[0])));
+                // }
+                double rand = Math.random();
+                if (rand < 1/((double)hiddenLayers.size() + 1)) {
                     Neuron fromNeuron = inputNeurons[(int) (Math.random() * inputNeurons.length)];
-                    Neuron toNeuron = hiddenLayers.get(0).get((int) (Math.random() * hiddenLayers.get(0).size()));
+                    Neuron toNeuron = hiddenLayers.get(0).get((int)(Math.random() * (hiddenLayers.get(0).size())));
 
-                    // // Create a new connector
-                    // for(int i = 0; i < 50; i++) {
-                    //     fromNeuron = inputNeurons[(int) (Math.random() * inputNeurons.length)];
-                    //     toNeuron = hiddenLayers.get(0).get((int) (Math.random() * hiddenLayers.get(0).size()));
-
-                    //     final Neuron fromChecker = fromNeuron;
-                    //     final Neuron toChecker = toNeuron;
-                    //     created = !toBeAdded.stream().anyMatch(c -> c.getFromNeuron().equals(fromChecker) && c.getToNeuron().equals(toChecker)) &&
-                    //     !connectors.stream().anyMatch(c -> c.getFromNeuron().equals(fromChecker) && c.getToNeuron().equals(toChecker));
-
-                    //     if (created) {
-                    //         break;
-                    //     }
-                    // }
                     toBeAdded.add(new Connector(fromNeuron, toNeuron, chances.connectorChances.weightRange[0] + Math.random() * (chances.connectorChances.weightRange[1] - chances.connectorChances.weightRange[0])));
-                    
-                } else {
-                    // Create a new connector
-                    // boolean created = false;
-
-                    Neuron fromNeuron = hiddenLayers.get(0).get((int) (Math.random() * hiddenLayers.get(0).size()));
+                } else if (rand < (2/((double)hiddenLayers.size() + 1))) {
+                    Neuron fromNeuron = hiddenLayers.get(hiddenLayers.size()-1).get((int) (Math.random() * (hiddenLayers.get(hiddenLayers.size()-1).size())));
                     Neuron toNeuron = outputNeurons[(int) (Math.random() * outputNeurons.length)];
-
-                    // // Create a new connector
-                    // for(int i = 0; i < 50 && !created; i++) {
-                    //     toNeuron = outputNeurons[(int) (Math.random() * outputNeurons.length)];
-                    //     fromNeuron = hiddenLayers.get(0).get((int) (Math.random() * hiddenLayers.get(0).size()));
-
-                    //     final Neuron fromChecker = fromNeuron;
-                    //     final Neuron toChecker = toNeuron;
-                    //     created = !toBeAdded.stream().anyMatch(c -> c.getFromNeuron() == fromChecker && c.getToNeuron().equals(toChecker)) &&
-                    //     !connectors.stream().anyMatch(c -> c.getFromNeuron() == fromChecker && c.getToNeuron().equals(toChecker));
-                    //     if (created) {
-                    //         break;    
-                    //     };
-                    // }
                     
+                    toBeAdded.add(new Connector(fromNeuron, toNeuron, chances.connectorChances.weightRange[0] + Math.random() * (chances.connectorChances.weightRange[1] - chances.connectorChances.weightRange[0])));
+                } else {
+                    int layer = (int)((hiddenLayers.size()-1) * Math.random());
+                    if (hiddenLayers.get(layer).size() == 0) hiddenLayers.get(layer).add(new HiddenNeuron());
+                    if (hiddenLayers.get(layer+1).size() == 0) hiddenLayers.get(layer+1).add(new HiddenNeuron()); 
+                    Neuron fromNeuron = hiddenLayers.get(layer).get((int) (Math.random() * hiddenLayers.get(layer).size()));
+                    Neuron toNeuron = hiddenLayers.get(layer+1).get((int) (Math.random() * hiddenLayers.get(layer+1).size()));
                     toBeAdded.add(new Connector(fromNeuron, toNeuron, chances.connectorChances.weightRange[0] + Math.random() * (chances.connectorChances.weightRange[1] - chances.connectorChances.weightRange[0])));
                 }
+
             }
             if (Math.random() < chances.connectorChances.deletion) {
                 // Delete the connector
@@ -306,6 +314,34 @@ public class Network {
         }
         uniqueConnectors.removeIf(c -> !containsNeuron(c.getFromNeuron()) || !containsNeuron(c.getToNeuron()));
         connectors = uniqueConnectors;
+
+        tbRemoved = new ArrayList<>();
+        for(ArrayList<Neuron> layer : hiddenLayers) {
+            if (layer.size() == 0) tbRemoved.add(layer);
+        }
+        hiddenLayers.removeAll(tbRemoved);
+
+        if (hiddenLayers.size() == 0) {
+            ArrayList<Neuron> newLayer = new ArrayList<>();
+            newLayer.add(new HiddenNeuron());
+            hiddenLayers.add(newLayer);
+        }
+        if(Math.random() < chances.layerChances.creationChance) {
+            ArrayList<Neuron> newLayer = new ArrayList<>();
+            newLayer.add(new HiddenNeuron());
+            connectors.add(new Connector(newLayer.get(0), outputNeurons[(int)(outputNeurons.length * Math.random())], Math.random() * 2 - 1));
+            int index = hiddenLayers.size() != 0 ? hiddenLayers.size() - 1 : 0;
+            connectors.add(new Connector(hiddenLayers.get(index).get((int)(Math.random() * hiddenLayers.get(index).size())), newLayer.get(0), Math.random() * 2 - 1));
+            hiddenLayers.add(newLayer);
+        }
+
+        // if(Math.random() < chances.layerChances.deletionChance) {
+            // removeLayer((int)(Math.random() * hiddenLayers.size()));
+            // TODO: Make this function (Make sure to remove connectors that go either from or to that layer)
+        // }
+
+        
+        
     }
 
     /**
@@ -440,7 +476,9 @@ public class Network {
     }
     
     Neuron[] getNeurons() {
-        Neuron[] neurons = new Neuron[inputNeurons.length + hiddenLayers.get(0).size() + outputNeurons.length];
+        int hiddenLayerNeuronCount = 0;
+        for(ArrayList<Neuron> layer : hiddenLayers) hiddenLayerNeuronCount += layer.size();
+        Neuron[] neurons = new Neuron[inputNeurons.length + hiddenLayerNeuronCount + outputNeurons.length];
 
         int index = 0;
         for (Neuron neuron : inputNeurons) {
@@ -532,20 +570,28 @@ public class Network {
         return false;
     }
 
-    void addNeuronToLayer(HiddenNeuron neuron, ArrayList<ArrayList<Neuron>> layers) {
-        if(layers.size() == 0) {
-            layers.add(new ArrayList<>());
+    void addNeuronToLayer(HiddenNeuron neuron, int layerIndex) {
+        while (hiddenLayers.size() <= layerIndex) hiddenLayers.add(new ArrayList<>());
+        hiddenLayers.get(layerIndex).add(neuron);
+    }
+
+    public int getLayerIndex(Neuron neuron) {
+        for (int i = 0; i < hiddenLayers.size(); i++) {
+            if (hiddenLayers.get(i).contains(neuron)) {
+                return i;
+            }
         }
-        for (ArrayList<Neuron> layer : layers) {
-            // if (layer.size() < maxNeurons) {
-                layer.add(neuron);
-                return;
-            // }
+        return -1;
+    }
+
+    public int getLayerIndex(int neuronId) {
+        for (int i = 0; i < hiddenLayers.size(); i++) {
+            for (Neuron neuron : hiddenLayers.get(i)) {
+                if (neuron.getId() == neuronId) {
+                    return i;
+                }
+            }
         }
-        // if (layers.size() < maxHiddenLayers) {
-        //     ArrayList<Neuron> newLayer = new ArrayList<>();
-        //     newLayer.add(neuron);
-        //     layers.add(newLayer);
-        // }
+        return -1;
     }
 }
